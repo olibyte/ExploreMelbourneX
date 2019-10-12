@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Plugin.Media;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -18,12 +19,13 @@ namespace ExploreMelbourneX
             InitializeComponent();
         }
 
-        private void Handle_Tapped(object sender, EventArgs e)
+        async void Handle_Tapped(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            var image = await CrossMedia.Current.PickPhotoAsync();
+            pickedImage.Source = ImageSource.FromFile(image.Path);
         }
 
-        private void Handle_Clicked(object sender, EventArgs e)
+        void Handle_Clicked(object sender, EventArgs e)
         {
             throw new NotImplementedException();
 
