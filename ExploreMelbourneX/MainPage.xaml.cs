@@ -1,8 +1,10 @@
 ﻿using Plugin.Media;
+using Plugin.Media.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
@@ -14,6 +16,8 @@ namespace ExploreMelbourneX
     [DesignTimeVisible(false)]
     public partial class MainPage : ContentPage
     {
+        private MediaFile _pickedImage;
+        private HttpClient _httpClient = new HttpClient();
         public MainPage()
         {
             InitializeComponent();
@@ -21,13 +25,28 @@ namespace ExploreMelbourneX
 
         async void Handle_Tapped(object sender, EventArgs e)
         {
-            var image = await CrossMedia.Current.PickPhotoAsync();
-            pickedImage.Source = ImageSource.FromFile(image.Path);
+            _pickedImage = await CrossMedia.Current.PickPhotoAsync();
+            pickedImage.Source = ImageSource.FromFile(_pickedImage.Path);
         }
 
-        void Handle_Clicked(object sender, EventArgs e)
+        async void Handle_Clicked(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
+            if(_pickedImage != null)
+            {
+                var postResult = await _httpClient.PostAsync("https://exploremelbourne.azurewebsites.net/api/HttpTrigger1?code=goezSGuSlOY27GdVSLoiD3aD6hI0nK/LRvECVETTGXR6C/XBDBgLJQ==",
+                    new StreamContent(_pickedImage.GetStreamWithImageRotatedForExternalStorage()));
+
+                var stringResult = await postResult.Content.ReadAsStringAsync();
+
+                if (postResult.IsSuccessStatusCode)
+                {
+                    await DisplayAlert("Here is what you see", stringResult, "OK");
+                }
+                else
+                {
+                    await DisplayAlert("Error", stringResult, "OK");
+                }
+            }
 
         }
     }
